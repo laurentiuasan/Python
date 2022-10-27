@@ -1,5 +1,6 @@
 """
 Write a function to return a list of the first n numbers in the Fibonacci string.
+
 """
 import sys
 
