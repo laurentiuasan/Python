@@ -1,6 +1,6 @@
 """
 Write a function that receives as parameters two lists a and b and returns a list of sets containing:
-(a intersected with b, a reunited with b, a - b, b - a)   
+(a intersected with b, a reunited with b, a - b, b - a)
 """
 
 
