@@ -1,1 +1,1 @@
-# Python laboratories
+# Python
