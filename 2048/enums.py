@@ -1,7 +1,7 @@
 # Constants
+SIZE = 4
 
-WIDTH = 400
-HEIGHT = 400
+WINDOW_SIZE = 500
 
 CELL_WIDTH = 40
 CELL_HEIGHT = 40
@@ -11,4 +11,5 @@ CENTERED = 'nsew'
 
 BACKGROUND = '#e8e8e8'
 BG_CELL = '#d9cdb8'
+FG_CELL = '#9e0032'
 BG_BOTTOM_CENTER_FRAME = '#c7c7c7'
