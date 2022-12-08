@@ -1,0 +1,14 @@
+# Constants
+
+WIDTH = 400
+HEIGHT = 400
+
+CELL_WIDTH = 40
+CELL_HEIGHT = 40
+
+LEFT_TO_RIGHT = 'ew'
+CENTERED = 'nsew'
+
+BACKGROUND = '#e8e8e8'
+BG_CELL = '#d9cdb8'
+BG_BOTTOM_CENTER_FRAME = '#c7c7c7'
