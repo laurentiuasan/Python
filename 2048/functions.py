@@ -7,10 +7,6 @@ import mainframe
 
 
 def init_game():
-    """
-    Function used to initialise the game with random number of values of 2
-    :return: numpy array
-    """
     no_values = random.randint(2, 6)
     matrix = np.zeros((e.SIZE, e.SIZE), dtype=int)
     for i in range(no_values):
@@ -30,14 +26,23 @@ def check_state(matrix):
     check_over = np.all(matrix)     # case for matrix full
 
 
-def move_up(matrix):
+def move(matrix, direction):
     new_matrix = np.zeros((4, 4), dtype=int)
-    for j in range(e.SIZE):
-        x, y = j, 0
+    if direction == "up":
         for i in range(e.SIZE):
-            if matrix[j][i] != 0:
-                new_matrix[x][y] = matrix[j][i]
-                y += 1
+            temp = 0
+            for j in range(e.SIZE):
+                if matrix[j][i] != 0:
+                    new_matrix[temp][i] = matrix[j][i]
+                    temp += 1
+    elif direction == "down":
+        for i in range(e.SIZE - 1, 0, -1):
+            temp = 0
+            for j in range(e.SIZE):
+                if matrix[i][j] != 0:
+                    new_matrix[temp][i] = matrix[j][i]
+                    temp += 1
     return new_matrix
+
 
 

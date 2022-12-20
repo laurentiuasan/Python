@@ -10,6 +10,7 @@ class Game(Frame):
         Frame.__init__(self)
         self.master.title("2048 THE Game")
         self.master.geometry("{}x{}".format(e.WINDOW_SIZE, e.WINDOW_SIZE))
+        self.master.bind("<Key>", self.pressed_key)
         self.grid()
 
         self.board = []
@@ -17,9 +18,14 @@ class Game(Frame):
         self.matrix = functions.init_game()
 
         self.init_grid()
-        self.matrix = functions.move_up(self.matrix)
-        self.update_grid()
-        # TBD find out why update is bad xd
+
+        self.commands = {
+            e.KEY_UP: functions.move(self.matrix, "up"),
+            e.KEY_DOWN: functions.move(self.matrix, "down"),
+            e.KEY_LEFT: functions.move(self.matrix, "left"),
+            e.KEY_RIGHT: functions.move(self.matrix, "right"),
+            e.KEY_RESET: functions.init_game()
+        }
 
         self.mainloop()
 
@@ -45,6 +51,7 @@ class Game(Frame):
             self.board.append(grid_row)
 
     def update_grid(self):
+        print(self.board)
         for i in range(e.SIZE):
             for j in range(e.SIZE):
                 new_value = self.matrix[i][j]
@@ -52,10 +59,16 @@ class Game(Frame):
                     self.board[i][j].configure(text="0", bg=e.BG_CELL, fg=e.FG_CELL)
                 else:
                     self.board[i][j].configure(text=str(new_value), bg=e.BG_CELL, fg=e.FG_CELL)
-                    self.board[i][j] = new_value
         self.update_idletasks()
+
+    def pressed_key(self, event):
+        key = event.keysym
+        print(event)
+        if key in self.commands:
+            self.matrix = self.commands[key]
+            self.update_grid()
+            self.states.append(self.matrix)
 
 
 if __name__ == '__main__':
     game = Game()
-

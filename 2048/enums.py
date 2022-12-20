@@ -13,3 +13,9 @@ BACKGROUND = '#e8e8e8'
 BG_CELL = '#d9cdb8'
 FG_CELL = '#9e0032'
 BG_BOTTOM_CENTER_FRAME = '#c7c7c7'
+
+KEY_UP = "w"
+KEY_DOWN = "s"
+KEY_LEFT = "a"
+KEY_RIGHT = "d"
+KEY_RESET = "r"
