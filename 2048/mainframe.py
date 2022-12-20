@@ -1,7 +1,7 @@
 from tkinter import *
 import enums as e
 import numpy as np
-import functions
+import random
 
 
 class Game(Frame):
@@ -14,8 +14,9 @@ class Game(Frame):
 
         self.board = []
         self.states = []
-        self.matrix = functions.init_game()
+        self.matrix = []
 
+        self.start_game()
         self.init_grid()
 
         self.master.bind("<Key>", self.move)
@@ -55,7 +56,20 @@ class Game(Frame):
                     self.board[i][j].configure(text=str(new_value), bg=e.BG_CELL, fg=e.FG_CELL)
         self.update_idletasks()
 
+    def start_game(self):
+        no_values = random.randint(2, 6)
+        self.matrix = np.zeros((e.SIZE, e.SIZE), dtype=int)
+        for i in range(no_values):
+            self.add_random_two()
+
     # Functions
+    def add_random_two(self):
+        empty_cells = np.where(self.matrix == 0)
+        row = random.choice(empty_cells[0])
+        col = random.choice(empty_cells[1])
+        print(row, col)
+        self.matrix[col][row] = 2
+
     def compress(self):
         new_matrix = np.zeros((4, 4), dtype=int)
         for i in range(e.SIZE):
@@ -91,7 +105,7 @@ class Game(Frame):
         print(key)
 
         if key == e.KEY_RESET:
-            self.matrix = functions.init_game()
+            self.start_game()
 
         if key == e.KEY_UP:
             self.transpose()
@@ -102,9 +116,7 @@ class Game(Frame):
         elif key == e.KEY_DOWN:
             self.transpose()
             self.reverse()
-
             self.gather_and_stack()
-
             self.reverse()
             self.transpose()
 
@@ -116,6 +128,7 @@ class Game(Frame):
             self.gather_and_stack()
             self.reverse()
 
+        self.add_random_two()
         self.update_grid()
         self.states.append(self.matrix)
 
