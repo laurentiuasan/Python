@@ -17,29 +17,63 @@ def init_game():
     return matrix
 
 
-def check_state(matrix):
-    check_win = np.where(matrix, matrix == 2048)
-    if check_win != 0:
-        return 1    # 1 representing win
-    print(check_win)
-
-    check_over = np.all(matrix)     # case for matrix full
+def reverse(matrix):
+    return np.fliplr(matrix)
 
 
-def move(matrix, direction):
+def transpose(matrix):
+    return np.transpose(matrix)
+
+
+def compress(matrix):
     new_matrix = np.zeros((4, 4), dtype=int)
-    if direction == "up":
-        for j in range(0, e.SIZE):
-            temp = 0
-            for i in range(0, e.SIZE):
-                if matrix[i][j] != 0:
-                    new_matrix[temp][j] = matrix[i][j]
-                    temp += 1
-    return new_matrix, True
+    for i in range(e.SIZE):
+        position = 0
+        for j in range(e.SIZE):
+            if matrix[i][j] != 0:
+                new_matrix[i][position] = matrix[i][j]
+                position += 1
+    return new_matrix
 
 
-def restart():
-    matrix = init_game()
-    return matrix, True
+def combine(matrix):
+    for i in range(e.SIZE):
+        for j in range(e.SIZE - 1):
+            if matrix[i][j] != 0:
+                if matrix[i][j] == matrix[i][j + 1]:
+                    matrix[i][j] *= 2
+                    matrix[i][j + 1] = 0
+    return matrix
+
+
+def move(matrix, command):
+
+    if command == "up":
+        matrix = transpose(matrix)
+        print(matrix)
+
+        matrix = compress(matrix)
+        print(matrix)
+        matrix = combine(matrix)
+        print(matrix)
+        matrix = compress(matrix)
+        print(matrix)
+
+        matrix = transpose(matrix)
+        print(matrix)
+
+    elif command == "down":
+        matrix = transpose(matrix)
+        matrix = reverse(matrix)
+
+        matrix = compress(matrix)
+        matrix = combine(matrix)
+        matrix = compress(matrix)
+
+        matrix = reverse(matrix)
+        matrix = transpose(matrix)
+
+    return matrix
+
 
 
