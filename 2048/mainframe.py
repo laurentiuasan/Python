@@ -24,7 +24,7 @@ class Game(Frame):
             e.KEY_DOWN: functions.move(self.matrix, "down"),
             e.KEY_LEFT: functions.move(self.matrix, "left"),
             e.KEY_RIGHT: functions.move(self.matrix, "right"),
-            e.KEY_RESET: functions.init_game()
+            e.KEY_RESET: functions.restart()
         }
 
         self.mainloop()
@@ -64,10 +64,13 @@ class Game(Frame):
     def pressed_key(self, event):
         key = event.keysym
         print(event)
+        print(self.matrix)
         if key in self.commands:
-            self.matrix = self.commands[key]
-            self.update_grid()
-            self.states.append(self.matrix)
+            self.matrix, done = self.commands[key]
+            if done:
+                self.update_grid()
+                self.states.append(self.matrix)
+        print(self.matrix)
 
 
 if __name__ == '__main__':
