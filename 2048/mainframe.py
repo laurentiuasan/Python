@@ -64,11 +64,12 @@ class Game(Frame):
 
     # Functions
     def add_random_two(self):
-        empty_cells = np.where(self.matrix == 0)
-        row = random.choice(empty_cells[0])
-        col = random.choice(empty_cells[1])
-        print(row, col)
-        self.matrix[col][row] = 2
+        row = random.randint(0, e.SIZE - 1)
+        col = random.randint(0, e.SIZE - 1)
+        while self.matrix[col][row] != 0:
+            row = random.randint(0, e.SIZE - 1)
+            col = random.randint(0, e.SIZE - 1)
+        self.matrix[row][col] = 2
 
     def compress(self):
         new_matrix = np.zeros((4, 4), dtype=int)
@@ -92,6 +93,7 @@ class Game(Frame):
         self.compress()
         self.combine()
         self.compress()
+        return True
 
     def reverse(self):
         self.matrix = np.fliplr(self.matrix)
@@ -109,28 +111,32 @@ class Game(Frame):
 
         if key == e.KEY_UP:
             self.transpose()
-            self.gather_and_stack()
+            done = self.gather_and_stack()
             self.transpose()
             print(self.matrix)
 
         elif key == e.KEY_DOWN:
             self.transpose()
             self.reverse()
-            self.gather_and_stack()
+            done = self.gather_and_stack()
             self.reverse()
             self.transpose()
+            print(self.matrix)
 
         elif key == e.KEY_LEFT:
-            self.gather_and_stack()
+            done = self.gather_and_stack()
+            print(self.matrix)
 
         elif key == e.KEY_RIGHT:
             self.reverse()
-            self.gather_and_stack()
+            done = self.gather_and_stack()
             self.reverse()
+            print(self.matrix)
 
-        self.add_random_two()
-        self.update_grid()
-        self.states.append(self.matrix)
+        if done:
+            self.add_random_two()
+            self.update_grid()
+            self.states.append(self.matrix)
 
 
 if __name__ == '__main__':
