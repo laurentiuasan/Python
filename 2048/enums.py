@@ -4,11 +4,11 @@
 SIZE = 4
 
 # Window size
-WINDOW_SIZE = 500
+WINDOW_SIZE = 400
 
 # Cells size
-CELL_WIDTH = 40
-CELL_HEIGHT = 40
+CELL_WIDTH = 75
+CELL_HEIGHT = 75
 
 # Colors
 BACKGROUND = '#c4c4c4'
@@ -39,6 +39,8 @@ CELLS_FG = {
     1024: "#ffffff",
     2048: "#ffffff"
 }
+LOST_BG = "#666565"
+WIN_BG = "#80E8E8"
 
 # Keys used
 KEY_UP = "w"
