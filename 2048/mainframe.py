@@ -2,6 +2,7 @@ from tkinter import *
 import enums as e
 import numpy as np
 import random
+import time
 
 
 class Game(Frame):
@@ -19,7 +20,7 @@ class Game(Frame):
         self.start_game()
         self.init_grid()
 
-        self.master.bind("<Key>", self.move)
+        self.master.bind("<Key>", self.pressed_key)
         self.states.append(self.matrix)
 
         self.mainloop()
@@ -31,16 +32,20 @@ class Game(Frame):
         # layout
         background.grid_rowconfigure(0, weight=1)
         background.grid_columnconfigure(1, weight=1)
-        background.place(in_=self, anchor=CENTER, relx=0.5, rely=0.5)
         background.grid()
         # TBD CENTER
 
         for i in range(e.SIZE):
             grid_row = []
             for j in range(e.SIZE):
-                cell = Frame(background, bg=e.BG_CELL, width=e.CELL_WIDTH, height=e.CELL_HEIGHT)
+                cell = Frame(background, bg=e.CELLS_BG[2], width=e.CELL_WIDTH, height=e.CELL_HEIGHT)
                 cell.grid(row=i, column=j, padx=10, pady=10)
-                t = Label(master=cell, text=str(self.matrix[i][j]), bg=e.BG_CELL, justify=CENTER, width=5, height=2)
+                if self.matrix[i][j] == 0:
+                    t = Label(master=cell, text="", bg=e.CELLS_BG[self.matrix[i][j]],
+                              justify=CENTER, width=10, height=4)
+                else:
+                    t = Label(master=cell, text=str(self.matrix[i][j]), bg=e.CELLS_BG[2], fg=e.CELLS_FG[2],
+                              justify=CENTER, width=10, height=4)
                 t.grid()
                 grid_row.append(t)
             self.board.append(grid_row)
@@ -51,9 +56,9 @@ class Game(Frame):
             for j in range(e.SIZE):
                 new_value = self.matrix[i][j]
                 if new_value == 0:
-                    self.board[i][j].configure(text="0", bg=e.BG_CELL, fg=e.FG_CELL)
+                    self.board[i][j].configure(text="", bg=e.CELLS_BG[new_value])
                 else:
-                    self.board[i][j].configure(text=str(new_value), bg=e.BG_CELL, fg=e.FG_CELL)
+                    self.board[i][j].configure(text=str(new_value), bg=e.CELLS_BG[new_value], fg=e.CELLS_FG[new_value])
         self.update_idletasks()
 
     def start_game(self):
@@ -64,12 +69,10 @@ class Game(Frame):
 
     # Functions
     def add_random_two(self):
-        row = random.randint(0, e.SIZE - 1)
-        col = random.randint(0, e.SIZE - 1)
-        while self.matrix[col][row] != 0:
-            row = random.randint(0, e.SIZE - 1)
-            col = random.randint(0, e.SIZE - 1)
-        self.matrix[row][col] = 2
+        free_cells = np.argwhere(self.matrix == 0)
+        random_index1 = np.random.randint(0, e.SIZE - 1)
+        random_index2 = np.random.randint(0, e.SIZE - 1)
+        self.matrix[random_index1][random_index2] = random.choice([2, 4])
 
     def compress(self):
         new_matrix = np.zeros((4, 4), dtype=int)
@@ -93,7 +96,6 @@ class Game(Frame):
         self.compress()
         self.combine()
         self.compress()
-        return True
 
     def reverse(self):
         self.matrix = np.fliplr(self.matrix)
@@ -101,42 +103,47 @@ class Game(Frame):
     def transpose(self):
         self.matrix = np.transpose(self.matrix)
 
-    def move(self, event):
+    def pressed_key(self, event):
         key = event.keysym
         print(event)
         print(key)
 
         if key == e.KEY_RESET:
             self.start_game()
+            print(self.states)
+            self.states = []
 
         if key == e.KEY_UP:
             self.transpose()
-            done = self.gather_and_stack()
+            self.gather_and_stack()
+            time.sleep(0.1)
             self.transpose()
             print(self.matrix)
 
         elif key == e.KEY_DOWN:
             self.transpose()
             self.reverse()
-            done = self.gather_and_stack()
+            self.gather_and_stack()
+            time.sleep(0.1)
             self.reverse()
             self.transpose()
             print(self.matrix)
 
         elif key == e.KEY_LEFT:
-            done = self.gather_and_stack()
+            self.gather_and_stack()
+            time.sleep(0.1)
             print(self.matrix)
 
         elif key == e.KEY_RIGHT:
             self.reverse()
-            done = self.gather_and_stack()
+            self.gather_and_stack()
+            time.sleep(0.1)
             self.reverse()
             print(self.matrix)
 
-        if done:
-            self.add_random_two()
-            self.update_grid()
-            self.states.append(self.matrix)
+        self.add_random_two()
+        self.update_grid()
+        self.states.append(self.matrix)
 
 
 if __name__ == '__main__':
