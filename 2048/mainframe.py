@@ -17,6 +17,7 @@ class Game(Frame):
         self.states = []
         self.matrix = []
         self.game_over = False
+        self.score = 0
 
         # creating main containers
         self.background = Frame(self, bg=e.BACKGROUND, width=e.WINDOW_SIZE, height=e.WINDOW_SIZE)
@@ -25,7 +26,7 @@ class Game(Frame):
         self.gui_grid()
 
         self.master.bind("<Key>", self.pressed_key)
-        self.states.append(self.matrix)
+        self.states.append((self.matrix, "0", self.score))
 
         self.mainloop()
 
@@ -36,8 +37,8 @@ class Game(Frame):
         self.background.grid_columnconfigure(1, weight=1)
         self.background.pack(side="bottom", padx=50, pady=50)
         self.background.grid()
-        # TBD CENTER
 
+        # grids
         for i in range(e.SIZE):
             grid_row = []
             for j in range(e.SIZE):
@@ -53,6 +54,7 @@ class Game(Frame):
                 grid_row.append(cell_containing)
             self.board.append(grid_row)
 
+    # updating ui
     def update_grid(self):
         print(self.board)
         for i in range(e.SIZE):
@@ -64,14 +66,17 @@ class Game(Frame):
                     self.board[i][j].configure(text=str(new_value), bg=e.CELLS_BG[new_value], fg=e.CELLS_FG[new_value])
         self.update_idletasks()
 
-    # Functions
+    # initiate matrix
     def start_game(self):
         self.game_over = False
-        no_values = random.randint(2, 6)
+        no_values = random.randint(2, 4)
         self.matrix = np.zeros((e.SIZE, e.SIZE), dtype=int)
         for i in range(no_values):
             self.add_random_two()
+        self.score = 0
+        print(self.matrix)
 
+    # generate random tile
     def add_random_two(self):
         free_cells = np.argwhere(self.matrix == 0)
         random_row = np.random.choice(len(free_cells), size=1, replace=False)
@@ -81,34 +86,44 @@ class Game(Frame):
         print(row, col)
         self.matrix[row, col] = random.choice([2, 4])
 
+    # checks if there is any horizontal moves available
+    def horizontal_moves(self):
+        for i in range(e.SIZE):
+            for j in range(e.SIZE - 1):
+                if self.matrix[i][j] == self.matrix[i][j + 1]:
+                    return True
+        return False
+
+    # checks if there is any vertically moves available
+    def vertical_moves(self):
+        for i in range(e.SIZE - 1):
+            for j in range(e.SIZE):
+                if self.matrix[i][j] == self.matrix[i + 1][j]:
+                    return True
+        return False
+
+    # checks weather you won or lost
     def check_game_state(self):
         # checks if you won and display a text
         if any(2048 in row for row in self.matrix):
             end_game_frame = Frame(self.background, name="game_won")
             end_game_frame.place(relx=0.5, rely=0.5, anchor="center")
-            win_text = Label(end_game_frame, text="YOU WON!", bg=e.WIN_BG)
+            win_text = Label(end_game_frame, text="YOU WON! Your score is: {}".format(self.score), bg=e.WIN_BG)
             win_text.pack()
             self.game_over = True
 
         # checks if you lost
         if not any(0 in row for row in self.matrix):
-            horizontal, vertical = False, False
-            for i in range(e.SIZE):
-                for j in range(e.SIZE - 1):
-                    if self.matrix[i][j] == self.matrix[i][j + 1]:
-                        horizontal = True
-            for i in range(e.SIZE - 1):
-                for j in range(e.SIZE):
-                    if self.matrix[i][j] == self.matrix[i + 1][j]:
-                        vertical = True
+            horizontal, vertical = self.horizontal_moves(), self.vertical_moves()
             # display a text saying that you lost
             if not horizontal and not vertical:
                 end_game_frame = Frame(self.background, name="game_lost")
                 end_game_frame.place(relx=0.5, rely=0.5, anchor="center")
-                lose_text = Label(end_game_frame, text="GAME OVER!", bg=e.LOST_BG)
+                lose_text = Label(end_game_frame, text="GAME OVER! Your score is: {}".format(self.score), bg=e.LOST_BG)
                 lose_text.pack()
                 self.game_over = True
 
+    # pulls all the tiles together
     def compress(self):
         new_matrix = np.zeros((4, 4), dtype=int)
         for i in range(e.SIZE):
@@ -119,25 +134,31 @@ class Game(Frame):
                     position += 1
         self.matrix = new_matrix
 
+    # stacks any 2 adjacent tiles with the same value
     def combine(self):
         for i in range(e.SIZE):
             for j in range(e.SIZE - 1):
                 if self.matrix[i][j] != 0:
                     if self.matrix[i][j] == self.matrix[i][j + 1]:
-                        self.matrix[i][j] *= 8
+                        self.matrix[i][j] *= 2
                         self.matrix[i][j + 1] = 0
+                        self.score += self.matrix[i][j]
 
+    # shortcut for our 2 repeated functions
     def gather_and_stack(self):
         self.compress()
         self.combine()
         self.compress()
 
+    # reverse the matrix
     def reverse(self):
         self.matrix = np.fliplr(self.matrix)
 
+    # transpose
     def transpose(self):
         self.matrix = np.transpose(self.matrix)
 
+    # checks for any key pressed and does the action
     def pressed_key(self, event):
         key = event.keysym
         print(event)
@@ -147,41 +168,57 @@ class Game(Frame):
             for widget in self.background.winfo_children():
                 if widget.winfo_name() in ["game_won", "game_lost"]:
                     widget.destroy()
-
             print(self.states)
             self.start_game()
             self.states = []
 
+        if key == e.KEY_BACK:
+            if len(self.states) > 1:
+                self.states.pop()
+                self.matrix = self.states[-1][0]
+                self.score = self.states[-1][2]
+                self.game_over = False
+                for widget in self.background.winfo_children():
+                    if widget.winfo_name() in ["game_won", "game_lost"]:
+                        widget.destroy()
+
         if not self.game_over:
-            if key == e.KEY_UP:
-                self.transpose()
-                self.gather_and_stack()
-                time.sleep(0.1)
-                self.transpose()
+            exists_vertically_moves = self.vertical_moves()
+            exists_horizontally_moves = self.horizontal_moves()
+            if not exists_horizontally_moves or exists_vertically_moves:
+                if key == e.KEY_UP:
+                    self.transpose()
+                    self.gather_and_stack()
+                    time.sleep(0.1)
+                    self.transpose()
 
-            elif key == e.KEY_DOWN:
-                self.transpose()
-                self.reverse()
-                self.gather_and_stack()
-                time.sleep(0.1)
-                self.reverse()
-                self.transpose()
+                elif key == e.KEY_DOWN:
+                    self.transpose()
+                    self.reverse()
+                    self.gather_and_stack()
+                    time.sleep(0.1)
+                    self.reverse()
+                    self.transpose()
 
-            elif key == e.KEY_LEFT:
-                self.gather_and_stack()
-                time.sleep(0.1)
+            if not exists_vertically_moves or exists_horizontally_moves:
+                if key == e.KEY_LEFT:
+                    self.gather_and_stack()
+                    time.sleep(0.1)
 
-            elif key == e.KEY_RIGHT:
-                self.reverse()
-                self.gather_and_stack()
-                time.sleep(0.1)
-                self.reverse()
+                elif key == e.KEY_RIGHT:
+                    self.reverse()
+                    self.gather_and_stack()
+                    time.sleep(0.1)
+                    self.reverse()
 
-            print(self.matrix)
-            self.add_random_two()
-            self.check_game_state()
+            if key != "BackSpace":
+                if len(np.argwhere(self.matrix == 0)) != 0:
+                    self.add_random_two()
+                self.check_game_state()
+                self.states.append((self.matrix, key, self.score))
             self.update_grid()
-            self.states.append(self.matrix)
+            print(self.states)
+            print(self.matrix)
 
 
 if __name__ == '__main__':
