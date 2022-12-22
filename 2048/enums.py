@@ -24,7 +24,8 @@ CELLS_BG = {
     256: "#dbc118",
     512: "#dbbc3d",
     1024: "#fcb900",
-    2048: "#c69ce6"
+    2048: "#c69ce6",
+    4096: "#7797c9"
 }
 CELLS_FG = {
     2: "#787675",
@@ -37,7 +38,8 @@ CELLS_FG = {
     256: "#ffffff",
     512: "#ffffff",
     1024: "#ffffff",
-    2048: "#ffffff"
+    2048: "#ffffff",
+    4096: "#ffffff"
 }
 LOST_BG = "#666565"
 WIN_BG = "#80E8E8"
