@@ -170,6 +170,7 @@ class Game(Frame):
                 if widget.winfo_name() in ["game_won", "game_lost"]:
                     widget.destroy()
             print(self.states)
+            self.states = []
             self.start_game()
 
         if key == e.KEY_BACK:
@@ -222,7 +223,8 @@ class Game(Frame):
                     self.add_random_two()
                     self.done = False
                 self.check_game_state()
-                self.states.append((self.matrix, key, self.score))
+                if key != "r":
+                    self.states.append((self.matrix, key, self.score))
             self.update_grid()
             print(self.states)
             print(self.matrix)
