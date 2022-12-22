@@ -18,6 +18,7 @@ class Game(Frame):
         self.matrix = []
         self.game_over = False
         self.score = 0
+        self.done = False
 
         # creating main containers
         self.background = Frame(self, bg=e.BACKGROUND, width=e.WINDOW_SIZE, height=e.WINDOW_SIZE)
@@ -26,7 +27,6 @@ class Game(Frame):
         self.gui_grid()
 
         self.master.bind("<Key>", self.pressed_key)
-        self.states.append((self.matrix, "0", self.score))
 
         self.mainloop()
 
@@ -74,6 +74,7 @@ class Game(Frame):
         for i in range(no_values):
             self.add_random_two()
         self.score = 0
+        self.states.append((self.matrix, "0", self.score))
         print(self.matrix)
 
     # generate random tile
@@ -90,7 +91,7 @@ class Game(Frame):
     def horizontal_moves(self):
         for i in range(e.SIZE):
             for j in range(e.SIZE - 1):
-                if self.matrix[i][j] == self.matrix[i][j + 1]:
+                if self.matrix[i][j] == self.matrix[i][j + 1] or self.matrix[i][j] == 0 or self.matrix[i][j + 1] == 0:
                     return True
         return False
 
@@ -98,7 +99,7 @@ class Game(Frame):
     def vertical_moves(self):
         for i in range(e.SIZE - 1):
             for j in range(e.SIZE):
-                if self.matrix[i][j] == self.matrix[i + 1][j]:
+                if self.matrix[i][j] == self.matrix[i + 1][j] or self.matrix[i][j] == 0 or self.matrix[i][j + 1] == 0:
                     return True
         return False
 
@@ -170,7 +171,6 @@ class Game(Frame):
                     widget.destroy()
             print(self.states)
             self.start_game()
-            self.states = []
 
         if key == e.KEY_BACK:
             if len(self.states) > 1:
@@ -181,16 +181,18 @@ class Game(Frame):
                 for widget in self.background.winfo_children():
                     if widget.winfo_name() in ["game_won", "game_lost"]:
                         widget.destroy()
+                self.update_grid()
 
         if not self.game_over:
             exists_vertically_moves = self.vertical_moves()
             exists_horizontally_moves = self.horizontal_moves()
-            if not exists_horizontally_moves or exists_vertically_moves:
+            if exists_vertically_moves:
                 if key == e.KEY_UP:
                     self.transpose()
                     self.gather_and_stack()
                     time.sleep(0.1)
                     self.transpose()
+                    self.done = True
 
                 elif key == e.KEY_DOWN:
                     self.transpose()
@@ -199,21 +201,26 @@ class Game(Frame):
                     time.sleep(0.1)
                     self.reverse()
                     self.transpose()
+                    self.done = True
 
-            if not exists_vertically_moves or exists_horizontally_moves:
+            if exists_horizontally_moves:
                 if key == e.KEY_LEFT:
                     self.gather_and_stack()
                     time.sleep(0.1)
+                    self.done = True
 
                 elif key == e.KEY_RIGHT:
                     self.reverse()
                     self.gather_and_stack()
                     time.sleep(0.1)
                     self.reverse()
+                    self.done = True
 
             if key != "BackSpace":
-                if len(np.argwhere(self.matrix == 0)) != 0:
+                if len(np.argwhere(self.matrix == 0)) != 0 and self.done:
+                    time.sleep(0.2)
                     self.add_random_two()
+                    self.done = False
                 self.check_game_state()
                 self.states.append((self.matrix, key, self.score))
             self.update_grid()
